@@ -9,3 +9,5 @@ end
 
 task :default => :test
 
+task :rdoc
+     `rdoc README.rdoc lib`

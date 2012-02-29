@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+
+	<title>Class: Rubactive::DiscreteValueStream</title>
+
+	<link rel="stylesheet" href="../rdoc.css" type="text/css" media="screen" />
+
+	<script src="../js/jquery.js" type="text/javascript"
+		charset="utf-8"></script>
+	<script src="../js/thickbox-compressed.js" type="text/javascript"
+		charset="utf-8"></script>
+	<script src="../js/quicksearch.js" type="text/javascript"
+		charset="utf-8"></script>
+	<script src="../js/darkfish.js" type="text/javascript"
+		charset="utf-8"></script>
+
+</head>
+<body class="class">
+
+	<div id="metadata">
+		<div id="home-metadata">
+			<div id="home-section" class="section">
+        <h3 class="section-header">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#classes">Classes</a>
+          <a href="../index.html#methods">Methods</a>
+        </h3>
+			</div>
+		</div>
+
+		<div id="file-metadata">
+			<div id="file-list-section" class="section">
+				<h3 class="section-header">In Files</h3>
+				<div class="section-body">
+					<ul>
+					
+						<li><a href="../lib/rubactive/rubactive_rb.html?TB_iframe=true&amp;height=550&amp;width=785"
+							class="thickbox" title="lib/rubactive/rubactive.rb">lib/rubactive/rubactive.rb</a></li>
+					
+					</ul>
+				</div>
+			</div>
+
+			
+		</div>
+
+		<div id="class-metadata">
+
+			<!-- Parent Class -->
+			
+			<div id="parent-class-section" class="section">
+				<h3 class="section-header">Parent</h3>
+				
+				<p class="link"><a href="ReactiveNode.html">Rubactive::ReactiveNode</a></p>
+				
+			</div>
+			
+
+			<!-- Namespace Contents -->
+			
+
+			<!-- Method Quickref -->
+			
+			<div id="method-list-section" class="section">
+				<h3 class="section-header">Methods</h3>
+				<ul class="link-list">
+					
+					<li><a href="#method-c-follows">::follows</a></li>
+					
+					<li><a href="#method-c-manual">::manual</a></li>
+					
+					<li><a href="#method-i-add_value">#add_value</a></li>
+					
+					<li><a href="#method-i-empty%3F">#empty?</a></li>
+					
+					<li><a href="#method-i-most_recent_value">#most_recent_value</a></li>
+					
+					<li><a href="#method-i-on_addition">#on_addition</a></li>
+					
+				</ul>
+			</div>
+			
+
+			<!-- Included Modules -->
+			
+		</div>
+
+		<div id="project-metadata">
+			
+			
+			<div id="fileindex-section" class="section project-section">
+				<h3 class="section-header">Files</h3>
+				<ul>
+				
+					<li class="file"><a href="../README_rdoc.html">README.rdoc</a></li>
+				
+				</ul>
+			</div>
+			
+
+			<div id="classindex-section" class="section project-section">
+				<h3 class="section-header">Class Index
+					<span class="search-toggle"><img src="../images/find.png"
+						height="16" width="16" alt="[+]"
+						title="show/hide quicksearch" /></span></h3>
+				<form action="#" method="get" accept-charset="utf-8" class="initially-hidden">
+				<fieldset>
+					<legend>Quicksearch</legend>
+					<input type="text" name="quicksearch" value=""
+						class="quicksearch-field" />
+				</fieldset>
+				</form>
+
+				<ul class="link-list">
+				
+					<li><a href="../Rubactive.html">Rubactive</a></li>
+				
+					<li><a href="../Rubactive/DiscreteValueStream.html">Rubactive::DiscreteValueStream</a></li>
+				
+					<li><a href="../Rubactive/TimeVaryingValue.html">Rubactive::TimeVaryingValue</a></li>
+				
+				</ul>
+				<div id="no-class-search-results" style="display: none;">No matching classes.</div>
+			</div>
+
+			
+		</div>
+	</div>
+
+	<div id="documentation">
+		<h1 class="class">Rubactive::DiscreteValueStream</h1>
+
+		<div id="description">
+			<p>
+A <a href="DiscreteValueStream.html">DiscreteValueStream</a> represents a
+stream of values. When a value is added to the stream, other
+DiscreteValueStreams may react if they follow this stream.
+</p>
+<p>
+Streams are explicitly created with DiscreteValueStream.manual or
+DiscreteValueStream.follows.  In the first case, values are added only with
+add_value. In the second, values can also be added in reaction to the
+streams being followed.
+</p>
+<p>
+Streams can also be implicity created by sending other streams unrecognized
+messages.
+</p>
+<pre>
+   origin = DiscreteValueStream.manual
+   follower = origin + 1
+</pre>
+<p>
+The previous definition of the follower stream is equivalent to this:
+</p>
+<pre>
+   follower = DiscreteValueStream.follows(origin) { | o | + 1 }</pre>
+
+		</div>
+
+		<!-- Constants -->
+		
+
+		<!-- Attributes -->
+		
+
+		<!-- Methods -->
+		
+		<div id="public-class-method-details" class="method-section section">
+			<h3 class="section-header">Public Class Methods</h3>
+
+		
+			<div id="follows-method" class="method-detail ">
+				<a name="method-c-follows"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">follows</span><span
+						class="method-args">(*streams, &block)</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+Create a stream that reacts to one or more other streams.
+</p>
+<p>
+The addition of values to any of the streams will cause the block to be
+called with their most recent values. The result is added to this stream
+(as with <a
+href="DiscreteValueStream.html#method-i-add_value">add_value</a>).
+</p>
+<p>
+Example: 
+</p>
+<pre>
+  origin = DiscreteValueStream.manual
+  follower = DiscreteValueStream.follows(origin) { | o | o+1 }
+  origin.add_value(5)
+  follower.most_recent_value #=&gt; 6
+</pre>
+<p>
+If no block is given, this stream should be following only one other
+stream. The value just added to that stream is also added to this one.
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="follows-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 214</span>
+214:     <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">follows</span>(*<span class="ruby-identifier">streams</span>, &amp;<span class="ruby-identifier">block</span>)
+215:       <span class="ruby-keyword kw">super</span>
+216:     <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+			<div id="manual-method" class="method-detail ">
+				<a name="method-c-manual"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">manual</span><span
+						class="method-args">()</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+Create an empty value stream
+</p>
+<p>
+Use <a href="DiscreteValueStream.html#method-i-add_value">add_value</a> to
+insert values into the stream.
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="manual-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 221</span>
+221:     <span class="ruby-keyword kw">def</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">manual</span>
+222:       <span class="ruby-identifier">follows</span> {
+223:         <span class="ruby-identifier">raise</span> <span class="ruby-value str">&quot;Incorrect use of recalculation in a manual event stream&quot;</span>
+224:       }
+225:     <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+		</div>
+	
+		<div id="public-instance-method-details" class="method-section section">
+			<h3 class="section-header">Public Instance Methods</h3>
+
+		
+			<div id="add-value-method" class="method-detail ">
+				<a name="method-i-add_value"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">add_value</span><span
+						class="method-args">(new_value)</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+Place a new value on the stream
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="add-value-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 244</span>
+244:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">add_value</span>(<span class="ruby-identifier">new_value</span>)    <span class="ruby-comment cmt"># this?</span>
+245:       <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">value</span> = <span class="ruby-identifier">new_value</span>
+246:     <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+			<div id="empty--method" class="method-detail ">
+				<a name="method-i-empty%3F"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">empty?</span><span
+						class="method-args">()</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+True iff no value has ever been added to the stream.
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="empty--source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 249</span>
+249:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">empty?</span>
+250:       <span class="ruby-identifier">most_recent_value</span> <span class="ruby-operator">==</span> <span class="ruby-constant">DEFAULT_VALUE</span>
+251:     <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+			<div id="most-recent-value-method" class="method-detail ">
+				<a name="method-i-most_recent_value"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">most_recent_value</span><span
+						class="method-args">()</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+Retrieve last value added to the stream
+</p>
+<p>
+Earlier values are inaccessible.
+</p>
+<p>
+It is an error to ask for the value of an <a
+href="DiscreteValueStream.html#method-i-empty%3F">#</a> stream.
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="most-recent-value-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 241</span>
+241:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">most_recent_value</span>; <span class="ruby-ivar">@value</span>; <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+			<div id="on-addition-method" class="method-detail ">
+				<a name="method-i-on_addition"></a>
+
+				<div class="method-heading">
+				
+					<span class="method-name">on_addition</span><span
+						class="method-args">(&callback)</span>
+					<span class="method-click-advice">click to toggle source</span>
+				
+				</div>
+
+				<div class="method-description">
+					
+					<p>
+Run a callback when a new value is added.
+</p>
+<p>
+This is an interface to the non-reactive world. When a new value is added
+(whether with <a
+href="DiscreteValueStream.html#method-i-add_value">add_value</a> or in
+reaction to a followed stream), the callback is called and given that
+value. The callback will typically do something with the value, like add it
+to a GUI.
+</p>
+					
+
+					
+					<div class="method-source-code"
+						id="on-addition-source">
+<pre>
+     <span class="ruby-comment cmt"># File lib/rubactive/rubactive.rb, line 233</span>
+233:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">on_addition</span>(&amp;<span class="ruby-identifier">callback</span>); <span class="ruby-identifier">on_change</span>(&amp;<span class="ruby-identifier">callback</span>); <span class="ruby-keyword kw">end</span></pre>
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+
+		
+		</div>
+	
+
+	</div>
+
+
+	<div id="rdoc-debugging-section-dump" class="debugging-section">
+	
+		<p>Disabled; run with --debug to generate this.</p>
+	
+	</div>
+
+	<div id="validator-badges">
+		<p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+		<p><small>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish
+			Rdoc Generator</a> 1.1.6</small>.</p>
+	</div>
+
+</body>
+</html>
+

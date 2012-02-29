@@ -2,7 +2,6 @@
 .bundle
 .yardoc
 coverage
-doc
 Gemfile.lock
 rdoc
 pkg/*

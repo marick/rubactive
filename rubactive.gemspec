@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name = "rubactive"
   s.homepage = "http://github.com/marick/rubactive"
   s.license = "MIT"
-  s.summary = %Q{A basic library for reactive programming}
-  s.description = %Q{A basic library for reactive programming}
+  s.summary = %Q{A basic and perhaps misinformed library for  learning about reactive programming}
+  s.description = %Q{A basic and perhaps misinformed library for learning about reactive programming}
   s.email = "marick@exampler.com"
   s.authors = ["Brian Marick"]
   s.required_ruby_version = '>= 1.9.2'
