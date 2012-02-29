@@ -113,10 +113,10 @@ module Rubactive
   # 
   #    origin = TimeVaryingValue.starting_with(5)
   #    follower = origin + 1
-  #    follower #=> 6
+  #    follower.current #=> 6
   #    
   #    origin.change_to(700)
-  #    follower #=> 701
+  #    follower.current #=> 701
   class TimeVaryingValue < ReactiveNode
     # Create a value that changes as the values it depends upon change.
     # 
@@ -193,7 +193,7 @@ module Rubactive
   #
   # The previous definition of the follower stream is equivalent to this:
   #
-  #    follower = DiscreteValueStream.follows(origin) { | o | + 1 }
+  #    follower = DiscreteValueStream.follows(origin) { | o | o + 1 }
   class DiscreteValueStream < ReactiveNode
     # Create a stream that reacts to one or more other streams.
     # 
