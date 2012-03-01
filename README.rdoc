@@ -153,9 +153,10 @@ The "reactive world" is one in which values are tied
 together with relationships created by +follows+. But that
 reactive world is embedded within other code that's not
 reactive. For example, it might be that a change to a
-reactive value should make a user interface control update.
+reactive value should make a user interface control change
+what it displays.
 
-This can be done by handing a callback to the reactive
+That can be done by handing a callback to the reactive
 value. Here's how a new addition to a value stream can
 affect the non-reactive world:
 
@@ -182,7 +183,7 @@ method name is different (for clarity):
 Consider a model-view-controller architecture that lets a
 user control a particular hardware setting. The user
 interface displays the current setting, and provides
-controls that lets the user change it by some delta. In a
+controls to let the user change it by some delta. In a
 typical MVC implementation, the controller takes an active
 role in shuttling events and values between layers of the
 system. But that responsibility could be implemented
@@ -219,7 +220,8 @@ count as *user* changes.
 When a user asks for a change, the hardware should be told
 to change. That steps out of the reactive framework, so it
 requires a callback. I'm going to pretend that the callback
-does various things, one of which is to change the
+does lots of work to interact with the hardware and, if that
+work succeeds, changes the 
 +hardware_setting+ value:
 
     user_changes.on_addition do |value|
@@ -238,7 +240,7 @@ the +hardware_setting+:
     value_displayed = TimeVaryingValue.follows(hardware_setting)
 
 (There'd presumably be some sort of +on_change+ callback to
-communicate changes to the time-varying value to the
+put changed values into the
 user-interface control.)
 
 So, now that we've done this wiring, how does it work?
