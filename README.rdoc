@@ -1,16 +1,280 @@
-= stunted
+= Rubactive
 
-Description goes here.
+I had a hard time figuring out what "functional reactive
+programming" and "reactive programming" meant from
+documentation on the web. Implementing it helped. This is
+the implementation. You can tell me if I'm still confused.
 
-== Contributing to stunted
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+Note: a big part of my confusion was because, I believe, the
+terminology used obscures more than it reveals, so I tried
+to pick better names. Again, you'll be the judge of whether
+I succeeded.
+
+The implementation I chose is most closely modeled after
+Flapjax (http://www.flapjax-lang.org/). Their tutorial is
+pretty good, though it uses the conventional names and is
+occasionally obfuscated by having flapjax code mixed up with
+HTML. Still: good job, guys!
+
+Note: my implementation is extremely naive (for example, it
+doesn't even try to deal with "glitching"), and it's missing
+some of the nice utility functions Flapjax has.
+
+= Rubactive
+
+To use Rubactive, you'll need Ruby 1.9. (I use 1.9.2.) Do
+this in irb:
+
+    require 'rubactive'
+    include Rubactive
+
+The idea of reactive programming is that you have values
+that change as a reaction to changes in other values. There
+are two ways to look at such values:
+
+[time-varying values]
+    There's a single value that changes over time. It might
+    be 5 at one moment and 6 at another. That might happen
+    because you explicitly changed it, but it might also
+    change because *some* *other* time-varying value changed
+    and this one reacted to that.
+
+    In Rubactive, such values are of class Rubactive::TimeVaryingValue.
+
+[streams of values]
+    Instead of one value that changes, it can be convenient
+    to think of a stream of distinct values, arriving one at
+    a time. A stream might change because some code added a
+    value to it, or because it reacted to a new value
+    appearing on another stream.
+
+    In Rubactive, such streams are of class
+    Rubactive::DiscreteValueStream.
+
+I used terminology like "a way to look at" and "convenient
+to think of" because there's no huge difference between the
+two classes. They are both thin wrappers (that mainly
+provide different terminology) over a base ReactiveNode
+class (which I haven't bothered to document).
+
+== TimeVaryingValues
+
+The simple way to create a time-varying value is to give it
+a starting value:
+
+    origin = TimeVaryingValue.starting_with(0)
+
+The current value of +origin+ can be found like this:
+
+    origin.current #=> 0
+
+(Note: it's sort of lame that we refer to +origin+ as a
+value but have to use +current+ to get the... value... of
+the... value. Some reactive frameworks work to hide the fact
+that +origin+ isn't really a value, but rather an
+object-containing-a-value. I don't do that.)
+
+We can also create another time-varying value that will
+always be the same as +origin+:
+
+    exactly = TimeVaryingValue.follows(origin)
+    exactly.current #=> 0
+
+Here's a way to see that +exactly+ really does follow
++origin+:
+
+    origin.change_to("dawn!")
+    exactly.current #=> "dawn!"
+
+That's not wildly exciting, so let's have one time-varying
+value be a function of another:
+
+    upper = TimeVaryingValue.follows(origin) { | o | o.upcase }
+    upper.current #=> "DAWN!"
+    origin.change_to("dawn, paul, and sophie")
+    upper.current #=> "DAWN, PAUL, AND SOPHIE" 
+
+(As noted before, it'd be better if time-varying values
+looked like integers, or strings, or whatever, instead of
+objects containing integers, or strings, or whatever. As a
+gesture toward that, I made it so +method_missing+
+constructed new time-varying-values:
+
+    coolness = origin.upcase
+    coolness.current  # => "DAWN, PAUL, AND SOPHIE" 
+    origin.change_to("your name here")
+    coolness.current  # => "YOUR NAME HERE" 
+
+That really doesn't add anything to your understanding, but
+what's the point of programming in Ruby if you can't show
+off?)
+
+There's no reason why time-varying values can't be dependent
+on more than one "origin":
+
+   annoyance = TimeVaryingValue.starting_with(" [that's what she said]")
+   michael = coolness + annoyance
+   # above shorthand equivalent to:
+   #   michael = TimeVaryingValue.follows(coolness, annoyance) do | c, a |
+   #        c + a
+   #   end
+   michael.current #=> "YOUR NAME HERE [that's what she said]"
+   
+   annoyance.change_to(" in bed!")
+   michael.current #=> "YOUR NAME HERE in bed!" 
+
+== DiscreteValueStream
+
+Now let's consider a stream of values, where a new value
+might appear at any instant. (You can probably see how this
+might be useful for modeling user input.) Here's how to
+create a stream that doesn't depend on anything:
+
+    values = DiscreteValueStream.manual
+
+You can put something onto a stream and look at it:
+
+    values.add_value(5)
+    values.most_recent_value   #=> 5
+
+As you might expect, you can have one stream follow another:
+
+    boring_values = DiscreteValueStream.manual
+    excited_values = DiscreteValueStream.follows(boring_values) do | b | 
+        b.upcase + "!"
+    end
+
+   boring_values.add_value("party")
+   excited_values.most_recent_value #=> "PARTY!" 
+
+== The outside world
+
+The "reactive world" is one in which values are tied
+together with relationships created by +follows+. But that
+reactive world is embedded within other code that's not
+reactive. For example, it might be that a change to a
+reactive value should make a user interface control update.
+
+This can be done by handing a callback to the reactive
+value. Here's how a new addition to a value stream can
+affect the non-reactive world:
+
+    excited_values.on_addition do | most_recent |
+       puts "This new value has been added: #{most_recent}"
+    end
+
+    boring_values.add_value("vegetate")
+    # This new value has been added: VEGETATE!
+
+The same can be done with time-varying-values, but the
+method name is different (for clarity):
+
+    tvv = TimeVaryingValue.starting_with(8)
+    tvv.on_change do | current |
+      puts "New value: #{current.inspect}"
+    end
+
+    tvv.change_to("Veterinarians >> human medicine people")
+    New value: "Veterinarians >> human medicine people"
+    
+== An end-to-end-example
+
+Consider a model-view-controller architecture that lets a
+user control a particular hardware setting. The user
+interface displays the current setting, and provides
+controls that lets the user change it by some delta. In a
+typical MVC implementation, the controller takes an active
+role in shuttling events and values between layers of the
+system. But that responsibility could be implemented
+declaratively with reactive values.
+
+Let's begin!
+
+The current hardware setting is a time-varying value:
+
+    hardware_setting = TimeVaryingValue.starting_with(50)
+
+The user's actions can be considered to be a stream of delta
+values:
+
+    deltas = DiscreteValueStream.manual
+
+That stream of deltas should be combined with the hardware
+setting to produce a stream of desired settings:
+
+    user_changes = DiscreteValueStream.follows(deltas) do |delta|
+        delta + hardware_setting.current
+    end
+
+(Alternately, we could be more terse:
+
+    user_changes = deltas + hardware_setting.current
+
+... but that would be showing off.)
+
+Note: I'm not having the +user_changes+ follow the hardware
+settings because independent changes to the hardware don't
+count as *user* changes.
+
+When a user asks for a change, the hardware should be told
+to change. That steps out of the reactive framework, so it
+requires a callback. I'm going to pretend that the callback
+does various things, one of which is to change the
++hardware_setting+ value:
+
+    user_changes.on_addition do |value|
+      # The code talks to the real hardware and also sets the authoritative value:
+      hardware_setting.change_to(value)
+    end
+
+At this point, we've propagated the user's desires
+"downward" (toward the hardware), but we also have to
+propagate the truth about the hardware upward (toward the
+user interface). We could have the user interface directly
+reflect the low-level +hardware_setting+ value, but lets
+decouple things a bit by having the displayed value +follow+
+the +hardware_setting+:
+
+    value_displayed = TimeVaryingValue.follows(hardware_setting)
+
+(There'd presumably be some sort of +on_change+ callback to
+communicate changes to the time-varying value to the
+user-interface control.)
+
+So, now that we've done this wiring, how does it work?
+
+The hardware setting starts at 50, because we told it that's
+the default:
+
+    hardware_setting.current #=> 50
+
+Because the displayed value follows the hardware setting, it
+too is 50:
+
+    value_displayed.current #=> 50
+
+Suppose the user clicks a button, enters a text value, or drags
+a slider---whatever. That provokes code that adds a value to
+the +deltas+ stream. Let's simulate that:
+
+    deltas.add_value(5)
+
+Did that count as a new +user_change+? Yes:
+
+    user_changes.most_recent_value  #=> 55
+
+Did that (via the callback) change the value of the
+hardware setting? Yes:
+
+    hardware_setting.current #=> 55
+
+Was that value reflected up to the user interface? Yes:
+
+    value_displayed.current #=> 55
+
+All this was done declaratively (with a sort of DSL), rather
+than with writing controller methods. That's the promise of
+reactive programming.
 
 == Copyright
 

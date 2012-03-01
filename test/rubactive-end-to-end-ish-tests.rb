@@ -22,7 +22,7 @@ class RubactiveUseCaseTests < Test::Unit::TestCase
 
     # Callback to code that manipulates hardware.
     @user_changes.on_addition do |value|
-      # That code adjusts the hardware setting as well as the real hardware.
+      # The code talks to the real hardware and also sets the authoritative value:
       @hardware_setting.change_to(value)
     end
 
